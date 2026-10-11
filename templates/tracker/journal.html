@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Journal – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Journal</h1>
+  <p class="lede">
+    {% if page.paginator.count %}{{ page.paginator.count }} entr{{ page.paginator.count|pluralize:"y,ies" }}, newest first.
+    {% else %}Every entry you write will appear here.{% endif %}
+  </p>
+</header>
+
+{% if page.object_list %}
+<ul class="entries">
+  {% for log in page.object_list %}{% include "tracker/_log_row.html" %}{% endfor %}
+</ul>
+
+{% if page.has_other_pages %}
+<nav class="pager" aria-label="Pages">
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Older entries</a>{% endif %}
+  <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Newer entries</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<div class="empty">
+  <p>The journal is empty. An entry can be as small as a single line about how the day went.</p>
+  <p><a class="button" href="{% url 'log_new' %}">Write the first entry</a></p>
+</div>
+{% endif %}
+{% endblock %}

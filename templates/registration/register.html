@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Create an account – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Create an account</h1>
+  <p class="lede">Today will be Day 1. You can change the start date later in settings.</p>
+</header>
+
+{% if closed %}
+<p class="notice">Registration is closed on this installation. If you already have an account, <a href="{% url 'login' %}">log in</a>.</p>
+{% else %}
+<form method="post" class="form narrow" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist-block">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="field">
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {{ form.username.errors }}
+    <p class="hint">Letters, digits and @ . + - _ only.</p>
+  </div>
+  <div class="field">
+    <label for="{{ form.password1.id_for_label }}">Password</label>
+    {{ form.password1 }}
+    {{ form.password1.errors }}
+    <p class="hint">At least 8 characters, and not a common password.</p>
+  </div>
+  <div class="field">
+    <label for="{{ form.password2.id_for_label }}">Repeat password</label>
+    {{ form.password2 }}
+    {{ form.password2.errors }}
+  </div>
+  <div class="actions">
+    <button type="submit" class="button">Create account</button>
+  </div>
+</form>
+<p class="aside">Already have an account? <a href="{% url 'login' %}">Log in</a>.</p>
+{% endif %}
+{% endblock %}

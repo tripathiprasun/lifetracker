@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Log in – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Log in</h1>
+  <p class="lede">Your journal is private to your account.</p>
+</header>
+
+<form method="post" class="form narrow" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist-block">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="field">
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    <input type="text" name="username" id="{{ form.username.id_for_label }}" autocomplete="username" autofocus required value="{{ form.username.value|default:'' }}">
+  </div>
+  <div class="field">
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    <input type="password" name="password" id="{{ form.password.id_for_label }}" autocomplete="current-password" required>
+  </div>
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="actions">
+    <button type="submit" class="button">Log in</button>
+  </div>
+</form>
+
+<p class="aside">New here? <a href="{% url 'register' %}">Create an account</a>.</p>
+{% endblock %}

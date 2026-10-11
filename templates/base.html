@@ -1,0 +1,50 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}LifeTracker{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tracker/app.css' %}">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <a class="brand" href="{% url 'dashboard' %}">LifeTracker</a>
+      {% if user.is_authenticated %}
+      <nav class="nav" aria-label="Main">
+        <a href="{% url 'dashboard' %}"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>Today</a>
+        <a href="{% url 'journal' %}"{% if request.resolver_match.url_name == 'journal' %} aria-current="page"{% endif %}>Journal</a>
+        <a href="{% url 'review' %}"{% if request.resolver_match.url_name == 'review' %} aria-current="page"{% endif %}>Weekly review</a>
+        <a href="{% url 'settings' %}"{% if request.resolver_match.url_name == 'settings' %} aria-current="page"{% endif %}>Settings</a>
+        <form class="nav-form" method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="linklike">Log out</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    {% if messages %}
+    <ul class="messages" role="status">
+      {% for message in messages %}
+      <li class="message message-{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap colophon">
+    <p>Record what happened. Notice patterns. Adjust slowly.</p>
+  </footer>
+  <script src="{% static 'tracker/app.js' %}" defer></script>
+</body>
+</html>

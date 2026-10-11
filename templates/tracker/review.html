@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Weekly review – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Weekly review</h1>
+  <p class="lede">The last seven days: {{ start|date:"j M" }} to {{ end|date:"j M Y" }}.</p>
+</header>
+
+<section class="section" aria-labelledby="h-week">
+  <h2 id="h-week" class="margin-title">The week</h2>
+  <div class="section-body">
+    <p>{{ recorded_days }} of 7 days recorded.</p>
+    <ol class="week">
+      {% for day in days %}
+      <li class="{% if day.log %}is-recorded{% endif %}{% if day.is_today %} is-today{% endif %}">
+        {% if day.log %}
+        <a href="{% url 'log_detail' day.log.pk %}"><span class="wd">{{ day.date|date:"D" }}</span><span class="dn">{{ day.date|date:"j" }}</span><span class="state">Recorded</span></a>
+        {% else %}
+        <a href="{% url 'log_new' %}?date={{ day.date|date:'Y-m-d' }}"><span class="wd">{{ day.date|date:"D" }}</span><span class="dn">{{ day.date|date:"j" }}</span><span class="state">Empty</span></a>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-avg">
+  <h2 id="h-avg" class="margin-title">Averages</h2>
+  <div class="section-body">
+    {% if rows %}
+    <p class="muted small">Averages use only the days where a value was recorded. Days left blank are not counted as zero.</p>
+    <table class="averages">
+      <thead><tr><th scope="col">Parameter</th><th scope="col">Result for the week</th><th scope="col">Days with a value</th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <th scope="row">{{ row.metric.name }}{% if not row.metric.is_active %} <span class="note">inactive</span>{% endif %}</th>
+          <td>
+            {% if row.kind == "boolean" %}
+              {% if row.count %}Yes on {{ row.yes_count }} of {{ row.count }}{% else %}<span class="muted">Nothing recorded</span>{% endif %}
+            {% elif row.average %}
+              Average {{ row.average }}{% if row.unit %} {{ row.unit }}{% endif %}
+            {% else %}
+              <span class="muted">Nothing recorded</span>
+            {% endif %}
+          </td>
+          <td>{{ row.count }} of 7</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>There is nothing to average yet. Once you record numbers or 1 to 10 ratings, their weekly averages will appear here. <a href="{% url 'settings' %}">Manage parameters</a>.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-ref">
+  <h2 id="h-ref" class="margin-title">What you wrote</h2>
+  <div class="section-body flush">
+    {% if reflections %}
+    <ul class="entries">
+      {% for log in reflections %}
+      <li class="entry">
+        <div class="margin">
+          <time datetime="{{ log.date|date:'Y-m-d' }}">{{ log.date|date:"D j M" }}</time>
+          <span class="day-label">{{ log.day_label }}</span>
+        </div>
+        <div class="body prose">
+          {% if log.notes %}{{ log.notes|linebreaks }}{% endif %}
+          {% if log.wins %}<p class="inline-label">Wins</p>{{ log.wins|linebreaks }}{% endif %}
+          {% if log.challenges %}<p class="inline-label">Challenges or mistakes</p>{{ log.challenges|linebreaks }}{% endif %}
+          {% if log.tomorrow_priority %}<p class="inline-label">Priority for tomorrow</p>{{ log.tomorrow_priority|linebreaks }}{% endif %}
+          <p class="small"><a href="{% url 'log_detail' log.pk %}">Open entry</a></p>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No written reflections in this window.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Settings – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Settings</h1>
+</header>
+
+<section class="section" aria-labelledby="h-start">
+  <h2 id="h-start" class="margin-title">Start date</h2>
+  <div class="section-body">
+    <p>This date is Day 1. The next calendar day is Day 2, and so on. Missed days don’t reset the count, and changing the date renumbers every entry.</p>
+    <form method="post" action="{% url 'settings_start_date' %}" class="form inline-form" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label for="{{ start_form.start_date.id_for_label }}">{{ start_form.start_date.label }}</label>
+        {{ start_form.start_date }}
+        {{ start_form.start_date.errors }}
+      </div>
+      <div class="actions"><button type="submit" class="button">Save start date</button></div>
+    </form>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-params">
+  <h2 id="h-params" class="margin-title">Parameters</h2>
+  <div class="section-body">
+    {% if metrics %}
+    <ul class="params">
+      {% for metric in metrics %}
+      <li class="param{% if not metric.is_active %} is-inactive{% endif %}">
+        <div class="param-main">
+          <p class="param-name">{{ metric.name }}{% if not metric.is_active %} <span class="note">inactive</span>{% endif %}</p>
+          <p class="param-meta">{{ metric.get_metric_type_display }}{% if metric.unit %}, {{ metric.unit }}{% endif %}. {{ metric.value_count }} recorded value{{ metric.value_count|pluralize }}.</p>
+        </div>
+        <div class="param-actions">
+          <form method="post" action="{% url 'metric_move' metric.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="up"><button type="submit" class="linklike"{% if forloop.first %} disabled{% endif %}>Move up</button></form>
+          <form method="post" action="{% url 'metric_move' metric.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="down"><button type="submit" class="linklike"{% if forloop.last %} disabled{% endif %}>Move down</button></form>
+          <a href="{% url 'metric_edit' metric.pk %}">Rename</a>
+          <form method="post" action="{% url 'metric_toggle' metric.pk %}">{% csrf_token %}<button type="submit" class="linklike">{% if metric.is_active %}Deactivate{% else %}Activate{% endif %}</button></form>
+          <a class="danger-link" href="{% url 'metric_delete' metric.pk %}">Delete</a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="muted small">Deactivating hides a parameter from new entries and keeps its history. Deleting removes it and every value recorded for it.</p>
+    {% else %}
+    <p>No parameters yet. Add the things you want to measure each day. You can always change them later.</p>
+    {% endif %}
+
+    <h3 class="subhead">Add a parameter</h3>
+    <form method="post" action="{% url 'metric_create' %}" class="form" novalidate>
+      {% csrf_token %}
+      {% if metric_form.non_field_errors %}<div class="errorlist-block">{{ metric_form.non_field_errors }}</div>{% endif %}
+      <div class="field">
+        <label for="{{ metric_form.name.id_for_label }}">{{ metric_form.name.label }}</label>
+        {{ metric_form.name }}{{ metric_form.name.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ metric_form.metric_type.id_for_label }}">{{ metric_form.metric_type.label }}</label>
+        {{ metric_form.metric_type }}{{ metric_form.metric_type.errors }}
+      </div>
+      <div class="field" data-unit-field>
+        <label for="{{ metric_form.unit.id_for_label }}">{{ metric_form.unit.label }}</label>
+        {{ metric_form.unit }}{{ metric_form.unit.errors }}
+        <p class="hint">Shown beside number inputs, for example hours or km.</p>
+      </div>
+      <div class="actions"><button type="submit" class="button">Add parameter</button></div>
+    </form>
+  </div>
+</section>
+{% endblock %}

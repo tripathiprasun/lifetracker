@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Page not found – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>This page doesn’t exist</h1>
+  <p class="lede">The link may be old, or the entry may belong to a different account.</p>
+</header>
+<p><a class="button" href="{% url 'dashboard' %}">Go to today</a></p>
+{% endblock %}

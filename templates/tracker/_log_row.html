@@ -1,0 +1,13 @@
+<li class="entry">
+  <div class="margin">
+    <time datetime="{{ log.date|date:'Y-m-d' }}">{{ log.date|date:"D j M Y" }}</time>
+    <span class="day-label">{{ log.day_label }}</span>
+  </div>
+  <div class="body">
+    {% if log.preview %}
+    <p class="preview"><a href="{% url 'log_detail' log.pk %}">{{ log.preview|truncatechars:170 }}</a></p>
+    {% else %}
+    <p class="preview preview-empty"><a href="{% url 'log_detail' log.pk %}">No written notes. Measurements only.</a></p>
+    {% endif %}
+  </div>
+</li>

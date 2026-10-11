@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Delete parameter – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Delete “{{ metric.name }}”?</h1>
+</header>
+<div class="warning">
+  <p>This permanently deletes the parameter and
+  {% if value_count %}all <strong>{{ value_count }}</strong> value{{ value_count|pluralize }} recorded for it.{% else %}any values recorded for it. None have been recorded yet.{% endif %}
+  Your journal entries and notes stay.</p>
+  <p>If you only want it out of your daily form, deactivate it instead. That keeps the history.</p>
+</div>
+<div class="actions">
+  <form method="post" action="{% url 'metric_delete' metric.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="button button-danger">Delete parameter and values</button>
+  </form>
+  {% if metric.is_active %}
+  <form method="post" action="{% url 'metric_toggle' metric.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="button button-quiet">Deactivate instead</button>
+  </form>
+  {% endif %}
+  <a class="button button-quiet" href="{% url 'settings' %}">Cancel</a>
+</div>
+{% endblock %}

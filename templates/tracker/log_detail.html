@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ log.date|date:"j F Y" }} – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ log.date|date:"l, j F Y" }}</h1>
+  <p class="lede">{{ log.day_label }}. Last edited {{ log.updated_at|date:"j M Y" }} at {{ log.updated_at|time:"H:i" }}.</p>
+  <p class="actions"><a class="button" href="{% url 'log_edit' log.pk %}">Edit entry</a></p>
+</header>
+
+<section class="section" aria-labelledby="h-meas">
+  <h2 id="h-meas" class="margin-title">Measurements</h2>
+  <div class="section-body">
+    {% if values %}
+    <dl class="measures">
+      {% for item in values %}
+      <div>
+        <dt>{{ item.metric.name }}{% if not item.metric.is_active %} <span class="note">inactive</span>{% endif %}</dt>
+        <dd>{{ item.display_value }}</dd>
+      </div>
+      {% endfor %}
+    </dl>
+    {% else %}
+    <p class="muted">No measurements were recorded for this day.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if log.notes %}
+<section class="section" aria-labelledby="h-notes">
+  <h2 id="h-notes" class="margin-title">How the day went</h2>
+  <div class="section-body prose">{{ log.notes|linebreaks }}</div>
+</section>
+{% endif %}
+{% if log.wins %}
+<section class="section" aria-labelledby="h-wins">
+  <h2 id="h-wins" class="margin-title">Wins</h2>
+  <div class="section-body prose">{{ log.wins|linebreaks }}</div>
+</section>
+{% endif %}
+{% if log.challenges %}
+<section class="section" aria-labelledby="h-chal">
+  <h2 id="h-chal" class="margin-title">Challenges or mistakes</h2>
+  <div class="section-body prose">{{ log.challenges|linebreaks }}</div>
+</section>
+{% endif %}
+{% if log.tomorrow_priority %}
+<section class="section" aria-labelledby="h-prio">
+  <h2 id="h-prio" class="margin-title">Priority for tomorrow</h2>
+  <div class="section-body prose">{{ log.tomorrow_priority|linebreaks }}</div>
+</section>
+{% endif %}
+{% if not log.has_writing %}
+<section class="section">
+  <div class="margin-title"></div>
+  <div class="section-body"><p class="muted">Nothing written for this day. <a href="{% url 'log_edit' log.pk %}">Add a note</a> if you want to.</p></div>
+</section>
+{% endif %}
+
+<nav class="pager" aria-label="Neighbouring entries">
+  {% if older %}<a href="{% url 'log_detail' older.pk %}">Earlier: {{ older.date|date:"j M Y" }}</a>{% else %}<span></span>{% endif %}
+  <a href="{% url 'journal' %}">Journal</a>
+  {% if newer %}<a href="{% url 'log_detail' newer.pk %}">Later: {{ newer.date|date:"j M Y" }}</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endblock %}

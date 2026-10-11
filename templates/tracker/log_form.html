@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{% if log %}Edit entry{% else %}New entry{% endif %} – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{% if log %}Edit entry{% else %}New entry{% endif %}</h1>
+  <p class="lede">Fill in what you know. Anything left blank is saved as not recorded, never as zero.</p>
+</header>
+
+<form method="post" class="form" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist-block">{{ form.non_field_errors }}</div>{% endif %}
+
+  <div class="field field-date">
+    <label for="{{ form.date.id_for_label }}">Date</label>
+    <div class="date-row">
+      <input type="date" name="{{ form.date.html_name }}" id="{{ form.date.id_for_label }}" value="{{ form.date.value|date:'Y-m-d'|default:form.date.value|default:'' }}" data-start-date="{{ profile.start_date|date:'Y-m-d' }}" required>
+      <span class="day-label" data-day-label>{{ day_label }}</span>
+    </div>
+    {{ form.date.errors }}
+  </div>
+
+  <fieldset class="group">
+    <legend>Measurements</legend>
+    {% for row in form.metric_rows %}
+      {% with metric=row.metric field=row.field %}
+      {% if metric.metric_type == "scale" or metric.metric_type == "boolean" %}
+      <fieldset class="metric">
+        <legend>{{ metric.name }}{% if row.inactive %} <span class="note">(inactive, keeps its past value)</span>{% endif %}{% if metric.metric_type == "scale" %} <span class="note">1 to 10</span>{% endif %}</legend>
+        <div class="choices">
+          {% for radio in field %}
+          <label class="choice{% if not radio.data.value %} choice-none{% endif %}">{{ radio.tag }}<span>{% if radio.data.value %}{{ radio.choice_label }}{% else %}Not recorded{% endif %}</span></label>
+          {% endfor %}
+        </div>
+        {{ field.errors }}
+      </fieldset>
+      {% else %}
+      <div class="metric">
+        <label for="{{ field.id_for_label }}">{{ metric.name }}{% if row.inactive %} <span class="note">(inactive, keeps its past value)</span>{% endif %}</label>
+        {% if metric.metric_type == "number" %}
+        <div class="with-unit">{{ field }}{% if metric.unit %}<span class="unit">{{ metric.unit }}</span>{% endif %}</div>
+        {% else %}
+        {{ field }}
+        {% endif %}
+        {{ field.errors }}
+      </div>
+      {% endif %}
+      {% endwith %}
+    {% empty %}
+    <p class="empty-inline">You have no active parameters. Add some in <a href="{% url 'settings' %}">settings</a>, or just write your notes below.</p>
+    {% endfor %}
+  </fieldset>
+
+  <div class="field">
+    <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+    {{ form.notes }}{{ form.notes.errors }}
+  </div>
+  <div class="field">
+    <label for="{{ form.wins.id_for_label }}">{{ form.wins.label }}</label>
+    {{ form.wins }}{{ form.wins.errors }}
+  </div>
+  <div class="field">
+    <label for="{{ form.challenges.id_for_label }}">{{ form.challenges.label }}</label>
+    {{ form.challenges }}{{ form.challenges.errors }}
+  </div>
+  <div class="field">
+    <label for="{{ form.tomorrow_priority.id_for_label }}">{{ form.tomorrow_priority.label }}</label>
+    {{ form.tomorrow_priority }}{{ form.tomorrow_priority.errors }}
+  </div>
+
+  <div class="actions">
+    <button type="submit" class="button">Save entry</button>
+    <a class="button button-quiet" href="{% if log %}{% url 'log_detail' log.pk %}{% else %}{% url 'dashboard' %}{% endif %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

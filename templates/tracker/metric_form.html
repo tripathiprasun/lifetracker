@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Rename parameter – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Rename parameter</h1>
+  <p class="lede">The type can’t be changed because past values were recorded using it.</p>
+</header>
+<form method="post" class="form narrow" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist-block">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="field">
+    <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+    {{ form.name }}{{ form.name.errors }}
+  </div>
+  <div class="field">
+    <label for="{{ form.metric_type.id_for_label }}">{{ form.metric_type.label }}</label>
+    {{ form.metric_type }}
+  </div>
+  <div class="field" data-unit-field>
+    <label for="{{ form.unit.id_for_label }}">{{ form.unit.label }}</label>
+    {{ form.unit }}{{ form.unit.errors }}
+  </div>
+  <div class="actions">
+    <button type="submit" class="button">Save changes</button>
+    <a class="button button-quiet" href="{% url 'settings' %}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

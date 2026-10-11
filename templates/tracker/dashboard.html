@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Today – LifeTracker{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>{{ today|date:"l, j F" }}</h1>
+  <p class="lede">
+    {% if today_number >= 1 %}{{ today_label }} of tracking, counting from {{ profile.start_date|date:"j F Y" }}.
+    {% else %}Tracking begins on {{ profile.start_date|date:"j F Y" }}.{% endif %}
+  </p>
+</header>
+
+<section class="section" aria-labelledby="h-today">
+  <h2 id="h-today" class="margin-title">Today’s entry</h2>
+  <div class="section-body">
+    {% if today_log %}
+    <p>Today’s entry is saved. It was last edited at {{ today_log.updated_at|time:"H:i" }}.</p>
+    <p class="actions">
+      <a class="button" href="{% url 'log_edit' today_log.pk %}">Edit today’s entry</a>
+      <a class="button button-quiet" href="{% url 'log_detail' today_log.pk %}">Read it</a>
+    </p>
+    {% else %}
+    <p>Nothing recorded for today yet. Partial entries are fine; leave blank whatever you didn’t measure.</p>
+    <p class="actions"><a class="button" href="{% url 'log_new' %}">Write today’s entry</a></p>
+    {% endif %}
+    <p class="tally">
+      {% if today_number >= 1 %}{{ total_recorded }} recorded of {{ today_number }} day{{ today_number|pluralize }} since the start.
+      {% else %}{{ total_recorded }} day{{ total_recorded|pluralize }} recorded so far.{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-params">
+  <h2 id="h-params" class="margin-title">What you track</h2>
+  <div class="section-body">
+    {% if metrics %}
+    <ul class="plain-list">
+      {% for metric in metrics %}
+      <li>{{ metric.name }}<span class="detail">{% if metric.unit %}, in {{ metric.unit }}{% else %}, {{ metric.get_metric_type_display|lower }}{% endif %}</span></li>
+      {% endfor %}
+    </ul>
+    <p><a href="{% url 'settings' %}">Manage parameters</a></p>
+    {% else %}
+    <p>You haven’t set up any parameters. A parameter is something you want to measure each day, such as hours slept, a mood rating from 1 to 10, or whether you exercised.</p>
+    <p><a href="{% url 'settings' %}">Add your first parameter</a></p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-recent">
+  <h2 id="h-recent" class="margin-title">Recent entries</h2>
+  <div class="section-body flush">
+    {% if recent %}
+    <ul class="entries">
+      {% for log in recent %}{% include "tracker/_log_row.html" %}{% endfor %}
+    </ul>
+    <p><a href="{% url 'journal' %}">Open the full journal</a></p>
+    {% else %}
+    <p>No entries yet. Your first one will be {{ today_label }}.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="h-look">
+  <h2 id="h-look" class="margin-title">Looking back</h2>
+  <div class="section-body">
+    <p><a href="{% url 'review' %}">Weekly review</a> shows the last seven days with averages for the numbers you track.</p>
+  </div>
+</section>
+{% endblock %}
